@@ -1,0 +1,16 @@
+# Node / JavaScript files
+node_modules/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Python caches (if using any scripts)
+__pycache__/
+*.pyc
+
+# Zapier sensitive files
+.env
+zapier_api_key.json
+
