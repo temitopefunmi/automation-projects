@@ -1,0 +1,547 @@
+{
+  "name": "Day 3 Reminder + Slack Digest",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f1911853-f2a7-40ce-b619-966a8eb8d860",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appFqqvS5HEn0xaTf",
+          "mode": "list",
+          "cachedResultName": "Lead Tracker",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblJDvZx1PfBngZDN",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf/tblJDvZx1PfBngZDN"
+        },
+        "filterByFormula": "AND(   {Day0_Email_Sent} = 1,   {Day3_Reminder_Sent} = 0 , {Status} != \"responded\")",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "c0843503-085c-4b39-8bc4-471a8c9b08ed",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "W6g5LEsijZjqTNQI",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "search",
+        "filterGroupsUi": {
+          "filterGroupsValues": [
+            {
+              "filtersUi": {
+                "filterValues": [
+                  {
+                    "propertyName": "email|string",
+                    "value": "={{ $json.Email }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        -208
+      ],
+      "id": "1eafd41d-ae1d-48e1-acd4-e67a1d1054a6",
+      "name": "Search contacts",
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "ibnp5bxe8KKgawcB",
+          "name": "HubSpot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cf89dff2-59ba-449e-bd51-b26acae21cfe",
+              "leftValue": "={{ $now }}",
+              "rightValue": "={{ new Date(new Date($('Search records').item.json['Created at']).getTime() + 3*24*60*60*1000) }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "afterOrEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "d543755a-1353-469e-8057-63c9f6d55244",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "temitopefunmi@yahoo.com",
+        "subject": "Friendly Reminder: Your Inquiry",
+        "message": "=<p>Hi {{$json.Name}},</p> <p>We’re following up regarding your inquiry. If you have any questions, please let us know!</p> <p>Best regards,<br>Sales Team</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        864,
+        -112
+      ],
+      "id": "20fd6165-cb8b-4789-be1f-05151a53881b",
+      "name": "Send a message",
+      "webhookId": "747e4dc3-b982-4958-b846-815263629160",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1DncWuHw2lMQQfMU",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appFqqvS5HEn0xaTf",
+          "mode": "list",
+          "cachedResultName": "Lead Tracker",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblJDvZx1PfBngZDN",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf/tblJDvZx1PfBngZDN"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Day0_Email_Sent": true,
+            "Day3_Reminder_Sent": true,
+            "id": "={{ $('Search records').item.json.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "new",
+                  "value": "new"
+                },
+                {
+                  "name": "updated",
+                  "value": "updated"
+                },
+                {
+                  "name": "needs review",
+                  "value": "needs review"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created at",
+              "displayName": "Created at",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Assigned Rep",
+              "displayName": "Assigned Rep",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Senior Sales Manager",
+                  "value": "Senior Sales Manager"
+                },
+                {
+                  "name": "Junior Sales Rep",
+                  "value": "Junior Sales Rep"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Last modified",
+              "displayName": "Last modified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Day0_Email_Sent",
+              "displayName": "Day0_Email_Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Day3_Reminder_Sent",
+              "displayName": "Day3_Reminder_Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Last_HubSpot_Activity",
+              "displayName": "Last_HubSpot_Activity",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1072,
+        -112
+      ],
+      "id": "a08bd12f-4b21-458a-82ce-0fed71c7cabf",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "W6g5LEsijZjqTNQI",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appFqqvS5HEn0xaTf",
+          "mode": "list",
+          "cachedResultName": "Lead Tracker",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl72up3moAAncTbf",
+          "mode": "list",
+          "cachedResultName": "Logs",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf/tbl72up3moAAncTbf"
+        },
+        "filterByFormula": "=IS_AFTER({Timestamp}, DATEADD(NOW(), -1, 'days'))",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        256
+      ],
+      "id": "4a658583-893b-4478-a484-724f50c2f3e7",
+      "name": "Search records1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "W6g5LEsijZjqTNQI",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Initialize counters\nlet created = 0;\nlet updated = 0;\nlet duplicates = 0;\nlet errors = 0;\n\n// Loop through all records from Airtable\nfor (const item of items) {\n  const outcome = item.json[\"Workflow Outcome\"];\n  \n  if (outcome === \"Created\") created++;\n  else if (outcome === \"Updated\") updated++;\n  else if (outcome === \"Duplicate\") duplicates++;\n  else if (outcome === \"Error\") errors++;\n}\n\n// Return summary object\nreturn [\n  {\n    json: {\n      total: items.length,\n      created,\n      updated,\n      duplicates,\n      errors\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        256
+      ],
+      "id": "f03ba199-db3d-4490-aa58-acf6497cee81",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09HA1P6E7Q",
+          "mode": "list",
+          "cachedResultName": "leads-digest"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n  \"text\": \"*📊 Daily Lead Digest*\",\n  \"blocks\": [\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*📅 Daily Lead Digest (last 24h)*\\nHere’s a summary of leads processed:\"\n      }\n    },\n    {\n      \"type\": \"section\",\n      \"fields\": [\n        { \"type\": \"mrkdwn\", \"text\": \"*Total Leads:*\\n{{ $json.total }}\" },\n        { \"type\": \"mrkdwn\", \"text\": \"*Created:*\\n{{ $json.created }}\" },\n        { \"type\": \"mrkdwn\", \"text\": \"*Updated:*\\n{{ $json.updated }}\" },\n        { \"type\": \"mrkdwn\", \"text\": \"*Duplicates:*\\n{{ $json.duplicates }}\" },\n        { \"type\": \"mrkdwn\", \"text\": \"*Errors:*\\n{{ $json.errors }}\" }\n      ]\n    },\n    {\n      \"type\": \"context\",\n      \"elements\": [\n        { \"type\": \"mrkdwn\", \"text\": \"_Generated by n8n workflow at {{ $now }}_\" }\n      ]\n    }\n  ]\n}\n",
+        "text": "=",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        640,
+        256
+      ],
+      "id": "536eb4ef-506d-47de-b8df-556c48c37012",
+      "name": "Send a message1",
+      "webhookId": "2bf19cf4-a5d2-4ee0-b99c-b18066a9beb2",
+      "credentials": {
+        "slackApi": {
+          "id": "Nh98QW9HKDyctQwM",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search records1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search contacts": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e6924d1f-eba4-4cb7-b563-c0010bea9686",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f5721c94127a8e93281a653a757d7c8ef3088aad0f5c1e00fff296845f9ec615"
+  },
+  "id": "71J8G1qYwmOj5kl7",
+  "tags": []
+}

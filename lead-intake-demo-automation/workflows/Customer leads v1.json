@@ -1,0 +1,4721 @@
+{
+  "name": "Customer leads v1",
+  "nodes": [
+    {
+      "parameters": {
+        "formId": "valNnIJ1"
+      },
+      "type": "n8n-nodes-base.typeformTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c0af5295-22fa-4e25-a7e7-95d6781d7e38",
+      "name": "Typeform Trigger",
+      "webhookId": "1c85eb72-d83e-44df-93d1-886a3a7e09a2",
+      "credentials": {
+        "typeformApi": {
+          "id": "84hNjK02jRDFlDkm",
+          "name": "Typeform account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b477f805-5955-4528-bc9f-5912be767087",
+              "name": "name",
+              "value": "={{ $json['FULL NAME'] }}",
+              "type": "string"
+            },
+            {
+              "id": "1e04034d-99ac-4aad-902a-eea0903c379c",
+              "name": "email",
+              "value": "={{ $json['EMAIL Address...'] }}",
+              "type": "string"
+            },
+            {
+              "id": "f1ccd7ed-dcb3-475b-9856-86f8a0d2eb66",
+              "name": "phone",
+              "value": "={{ $json['Phone Number'] }}",
+              "type": "string"
+            },
+            {
+              "id": "57e5173c-e14d-4317-88a2-fe9c2eff1002",
+              "name": "job_title",
+              "value": "={{ $json['JOB Title'] }}",
+              "type": "string"
+            },
+            {
+              "id": "052872c9-725f-49ab-8ace-c167d09a78f0",
+              "name": "demo",
+              "value": "={{ $json['Would you like to request a demo?'] }}",
+              "type": "boolean"
+            },
+            {
+              "id": "894c5fc7-458c-4b79-9c27-7689d2d89468",
+              "name": "company_website",
+              "value": "={{ $json['Company Website'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "b6abcfe2-bc05-49f4-87fb-0590904d64e5",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "emailVerifier",
+        "email": "={{ $json.email }}"
+      },
+      "type": "n8n-nodes-base.hunter",
+      "typeVersion": 1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "6490ad82-289e-415c-ba59-1307e9f7a534",
+      "name": "Hunter",
+      "credentials": {
+        "hunterApi": {
+          "id": "1U0n8yYN84ZxxxjK",
+          "name": "Hunter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "email": "={{ $json.fields.Email }}",
+        "additionalFields": {
+          "companyName": "={{ $json.fields.Company }}",
+          "companySize": "={{ $json.fields['Company Size'] }}",
+          "firstName": "={{ $json.fields.Name }}",
+          "mobilePhoneNumber": "={{ $json.fields.Phone }}"
+        },
+        "options": {
+          "resolveData": false
+        }
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        5024,
+        112
+      ],
+      "id": "558c11c6-c5b2-4249-9d4d-50299f40c61f",
+      "name": "Create or update a contact",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "ibnp5bxe8KKgawcB",
+          "name": "HubSpot account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appFqqvS5HEn0xaTf",
+          "mode": "list",
+          "cachedResultName": "Lead Tracker",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblJDvZx1PfBngZDN",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf/tblJDvZx1PfBngZDN"
+        },
+        "filterByFormula": "={Email} = \"{{ $('Edit Fields').item.json.email }}\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "260c6262-43ff-492a-9f8c-8d63e7166d93",
+      "name": "Search records",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "W6g5LEsijZjqTNQI",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1533cb45-9f6b-4490-8c06-a220ce58b0d2",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1632,
+        0
+      ],
+      "id": "8b9c2950-981d-4c40-b848-db87cf4a9880",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.apollo.io/v1/organizations/enrich",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Api-Key",
+              "value": "={{ $vars.APOLLO_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"domain\": \"{{ $('Code in JavaScript').item.json.domain }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "f93467d8-60e7-4a3f-b5d0-141ee266968c",
+      "name": "HTTP Request",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      email: $json.email,\n      domain: $json.email.split('@')[1]\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "5e6c1c84-e8e1-4471-936f-8a1d5078b8d2",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4016,
+        96
+      ],
+      "id": "70e175ec-b0d6-4bed-9fce-360cfc48f18d",
+      "name": "Merge",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "edcdc998-a903-429b-be8f-f9e8ccf9c7a6",
+              "leftValue": "={{ $('Merge').item.json.fields['Company Size'] }}",
+              "rightValue": 50,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5488,
+        -144
+      ],
+      "id": "4231dbae-8617-441e-80af-66a7b32dca05",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "sendTo": "temitopefunmi@yahoo.com",
+        "subject": "=New Lead Alert:  {{ $('Merge').item.json.fields.Name }}",
+        "message": "=<!DOCTYPE html>\n<html>\n  <head>\n    <style>\n      body {\n        font-family: Arial, sans-serif;\n        background-color: #f7f7f7;\n        margin: 0;\n        padding: 20px;\n      }\n      .container {\n        background-color: #ffffff;\n        padding: 20px;\n        border-radius: 8px;\n        box-shadow: 0 2px 5px rgba(0,0,0,0.1);\n        max-width: 600px;\n        margin: auto;\n      }\n      h2 {\n        color: #2E86C1;\n        margin-top: 0;\n      }\n      p {\n        color: #333333;\n        line-height: 1.5;\n      }\n      .field {\n        margin-bottom: 10px;\n      }\n      .field strong {\n        color: #555555;\n      }\n      .button {\n        display: inline-block;\n        padding: 10px 20px;\n        margin-top: 15px;\n        background-color: #2E86C1;\n        color: #ffffff;\n        text-decoration: none;\n        border-radius: 5px;\n        font-weight: bold;\n      }\n      .footer {\n        margin-top: 20px;\n        font-size: 12px;\n        color: #888888;\n        text-align: center;\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"container\">\n      <h2>🚀 New Lead Alert</h2>\n      <p class=\"field\"><strong>Name:</strong> {{ $('Merge').item.json.fields.Name }} </p>\n      <p class=\"field\"><strong>Email:</strong> {{ $('Merge').item.json.fields.Email }}</p>\n      <p class=\"field\"><strong>Company:</strong> {{ $('Merge').item.json.fields.Company }} </p>\n      <p class=\"field\"><strong>Employees:</strong> {{ $('Merge').item.json.fields['Company Size'] }} </p>\n      <p class=\"field\"><strong>Assigned To:</strong> Senior Sales Manager </p>\n      <a href=\"https://airtable.com/appFqqvS5HEn0xaTf/tblJDvZx1PfBngZDN/viwKeWuAMB2twmL6h/{{ $('Merge').item.json.id }}\" class=\"button\" target=\"_blank\">View Lead in Airtable</a>\n      <div class=\"footer\">\n        This is an automated notification from the Lead-to-Customer Workflow.\n      </div>\n    </div>\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        6464,
+        -256
+      ],
+      "id": "e6686a80-17d2-4be5-8956-29eab4b4b4c1",
+      "name": "Send to Senior Sales Mgr",
+      "webhookId": "1544dff8-2381-4ed7-ba4e-1325dd011b68",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1DncWuHw2lMQQfMU",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "temitopefunmi@yahoo.com",
+        "subject": "=New Lead Alert: {{ $('Merge').item.json.fields.Name }}",
+        "message": "=<!DOCTYPE html>\n<html>\n  <head>\n    <style>\n      body {\n        font-family: Arial, sans-serif;\n        background-color: #f7f7f7;\n        margin: 0;\n        padding: 20px;\n      }\n      .container {\n        background-color: #ffffff;\n        padding: 20px;\n        border-radius: 8px;\n        box-shadow: 0 2px 5px rgba(0,0,0,0.1);\n        max-width: 600px;\n        margin: auto;\n      }\n      h2 {\n        color: #2E86C1;\n        margin-top: 0;\n      }\n      p {\n        color: #333333;\n        line-height: 1.5;\n      }\n      .field {\n        margin-bottom: 10px;\n      }\n      .field strong {\n        color: #555555;\n      }\n      .button {\n        display: inline-block;\n        padding: 10px 20px;\n        margin-top: 15px;\n        background-color: #2E86C1;\n        color: #ffffff;\n        text-decoration: none;\n        border-radius: 5px;\n        font-weight: bold;\n      }\n      .footer {\n        margin-top: 20px;\n        font-size: 12px;\n        color: #888888;\n        text-align: center;\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"container\">\n      <h2>🚀 New Lead Alert</h2>\n      <p class=\"field\"><strong>Name:</strong> {{ $('Merge').item.json.fields.Name }} </p>\n      <p class=\"field\"><strong>Email:</strong> {{ $('Merge').item.json.fields.Email }}</p>\n      <p class=\"field\"><strong>Company:</strong> {{ $('Merge').item.json.fields.Company }} </p>\n      <p class=\"field\"><strong>Employees:</strong> {{ $('Merge').item.json.fields['Company Size'] }} </p>\n      <p class=\"field\"><strong>Assigned To:</strong> \"Junior Sales Rep\" </p>\n      <a href=\"https://airtable.com/appFqqvS5HEn0xaTf/tblJDvZx1PfBngZDN/viwKeWuAMB2twmL6h/{{ $('Merge').item.json.id }}\" class=\"button\" target=\"_blank\">View Lead in Airtable</a>\n      <div class=\"footer\">\n        This is an automated notification from the Lead-to-Customer Workflow.\n      </div>\n    </div>\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        6464,
+        -64
+      ],
+      "id": "8ef346e8-260d-4c3b-a5c4-538d100b8d4d",
+      "name": "Send a message1",
+      "webhookId": "22c21551-d589-45f6-acbe-d4970a98147b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1DncWuHw2lMQQfMU",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "41aa23b9-cf94-458d-a253-49f888791293",
+              "leftValue": "={{ $('Edit Fields').item.json.demo }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5568,
+        368
+      ],
+      "id": "6e1059d6-c133-44d7-a39e-99ab7c4fea6b",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json.name }}",
+        "subject": "Book Your Demo",
+        "message": "=<!DOCTYPE html>\n<html>\n  <head>\n    <meta charset=\"UTF-8\" />\n    <style>\n      body {\n        font-family: Arial, sans-serif;\n        color: #333333;\n        background-color: #f9f9f9;\n        padding: 20px;\n      }\n      .container {\n        max-width: 600px;\n        margin: 0 auto;\n        background: #ffffff;\n        padding: 20px;\n        border-radius: 10px;\n        box-shadow: 0 2px 6px rgba(0,0,0,0.1);\n      }\n      h2 {\n        color: #0073e6;\n      }\n      .button {\n        display: inline-block;\n        margin-top: 20px;\n        padding: 12px 24px;\n        background-color: #0073e6;\n        color: #ffffff !important;\n        text-decoration: none;\n        border-radius: 6px;\n        font-weight: bold;\n      }\n      .footer {\n        margin-top: 30px;\n        font-size: 12px;\n        color: #888888;\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"container\">\n      <h2>Hi {{ $('Merge').item.json.fields.Name }},</h2>\n      <p>Thanks for requesting a demo with us 🎉</p>\n      <p>We’d love to show you how our solution can help your team. Please use the link below to pick a time that works best for you:</p>\n      <a href=\"https://calendly.com/YOUR_DEMO_LINK\" class=\"button\" target=\"_blank\">\n        Book Your Demo\n      </a>\n      <p>If you have any questions before the demo, feel free to reply directly to this email.</p>\n      <div class=\"footer\">\n        — The Sales Team\n      </div>\n    </div>\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        6464,
+        352
+      ],
+      "id": "e87dc593-bb52-44cd-a121-a7d7bd1a962f",
+      "name": "Demo Email",
+      "webhookId": "31061909-d202-4b77-aa72-53893c5af0df",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1DncWuHw2lMQQfMU",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "temitopefunmi@yahoo.com",
+        "subject": "Thank you for reaching out",
+        "message": "=<!DOCTYPE html>\n<html>\n  <head>\n    <meta charset=\"UTF-8\" />\n    <style>\n      body {\n        font-family: Arial, sans-serif;\n        color: #333333;\n        background-color: #f9f9f9;\n        padding: 20px;\n      }\n      .container {\n        max-width: 600px;\n        margin: 0 auto;\n        background: #ffffff;\n        padding: 20px;\n        border-radius: 10px;\n        box-shadow: 0 2px 6px rgba(0,0,0,0.1);\n      }\n      h2 {\n        color: #0073e6;\n      }\n      .footer {\n        margin-top: 30px;\n        font-size: 12px;\n        color: #888888;\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"container\">\n      <h2>Welcome, {{ $json.full_name }} 👋</h2>\n      <p>Thanks for reaching out to us! We're excited to have you here.</p>\n      <p>Our team will be reviewing your details and will follow up with you shortly. In the meantime, feel free to explore more about what we do:</p>\n      <p><a href=\"https://yourcompany.com\" target=\"_blank\">Visit our website →</a></p>\n      <p>If you have any questions, simply reply to this email and we’ll be glad to assist.</p>\n      <div class=\"footer\">\n        — The Sales Team\n      </div>\n    </div>\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        6464,
+        624
+      ],
+      "id": "e1f599fe-0830-4b6a-9c58-4b4be78b6e98",
+      "name": "NoDemo Welcome email",
+      "webhookId": "7f7d2b7b-9579-4e80-8354-84b3b08e046b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1DncWuHw2lMQQfMU",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "temitopefunmi@yahoo.com",
+        "subject": "Thank you!",
+        "message": "=<!DOCTYPE html>\n<html>\n  <head>\n    <style>\n      body {\n        font-family: Arial, sans-serif;\n        background-color: #f8f9fa;\n        color: #333;\n        line-height: 1.6;\n        padding: 20px;\n      }\n      .container {\n        max-width: 600px;\n        margin: auto;\n        background: #ffffff;\n        padding: 30px;\n        border-radius: 8px;\n        box-shadow: 0 2px 6px rgba(0,0,0,0.1);\n      }\n      h2 {\n        color: #0066cc;\n      }\n      .footer {\n        margin-top: 20px;\n        font-size: 12px;\n        color: #888;\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"container\">\n      <h2>Thanks for reaching out!</h2>\n      <p>\n        Hi {{ \"Temitope\" || \"there\" }},\n      </p>\n      <p>\n        Thanks for contacting us — we’ve received your details and a member of our team will get back to you shortly.\n      </p>\n      <p>\n        If you requested a demo, we’ll follow up with scheduling information. Otherwise, we’ll be in touch soon.\n      </p>\n      <div class=\"footer\">\n        <p>© 2025 Zenith Healthtech. All rights reserved.</p>\n      </div>\n    </div>\n  </body>\n</html>\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        4352,
+        112
+      ],
+      "id": "0e2b8474-b43b-4c26-b807-3889bcc1e61a",
+      "name": "Thank you email",
+      "webhookId": "8e84b4f5-45ad-46c8-8042-b79ff2398592",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1DncWuHw2lMQQfMU",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c81b8d0f-2f50-4d03-ad82-f0cde0b35a59",
+              "name": "name",
+              "value": "={{ $('Edit Fields').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "00d581f3-9cb0-4ea6-9fe0-da0f042f7640",
+              "name": "email",
+              "value": "={{ $('Edit Fields').item.json.email }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2064,
+        368
+      ],
+      "id": "d52d764f-8103-4aa0-b052-1b5b8bc74dcb",
+      "name": "Incoming lead"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "89be2e28-5d05-419e-b198-c815becb0a40",
+              "name": "name",
+              "value": "={{ $('Search records').item.json.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "b36b9268-e656-4dbc-bae5-1f7605ea185f",
+              "name": "email",
+              "value": "={{ $('Search records').item.json.Email }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2416,
+        368
+      ],
+      "id": "f453ec76-dd6f-4cc8-a750-f2afcb03064a",
+      "name": "Existing lead"
+    },
+    {
+      "parameters": {
+        "jsCode": "const incoming = {\n  name: $('Incoming lead').first().json.name,\n  email: $('Incoming lead').first().json.email,\n};\n\nconst existing = {\n  name: $('Incoming lead').first().json.name,\n  email:$('Incoming lead').first().json.email, \n\n};\n\nlet outcome = \"Duplicate\"; // default\n\nfor (let key in incoming) {\n  if (incoming[key] && incoming[key] !== existing[key]) {\n    outcome = \"Updated\";\n    break;\n  }\n}\n\nreturn [{ json: { outcome } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2624,
+        368
+      ],
+      "id": "19039204-fdef-44d9-8ff8-3fecfdd0cb0c",
+      "name": "Compare objects"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appFqqvS5HEn0xaTf",
+          "mode": "list",
+          "cachedResultName": "Lead Tracker",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl72up3moAAncTbf",
+          "mode": "list",
+          "cachedResultName": "Logs",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf/tbl72up3moAAncTbf"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Workflow Outcome": "={{ $json.outcome }}",
+            "Lead Name": "={{ $('Incoming lead').item.json.name }}",
+            "Email": "={{ $('Incoming lead').item.json.email }}",
+            "Error details": "=",
+            "Rep Assigned": "={{ $('HTTP Request').item.json.organization.estimated_num_employees && $('HTTP Request').item.json.organization.estimated_num_employees >= 500 ? \"Senior Sales Manager\" : \"Junior Sales Rep\"}}"
+          },
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Lead Name",
+              "displayName": "Lead Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Workflow Outcome",
+              "displayName": "Workflow Outcome",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Created",
+                  "value": "Created"
+                },
+                {
+                  "name": "Updated",
+                  "value": "Updated"
+                },
+                {
+                  "name": "Duplicate",
+                  "value": "Duplicate"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Error details",
+              "displayName": "Error details",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Airtable Record URL",
+              "displayName": "Airtable Record URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Rep Assigned",
+              "displayName": "Rep Assigned",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Senior Sales Manager",
+                  "value": "Senior Sales Manager"
+                },
+                {
+                  "name": "Junior Sales Rep",
+                  "value": "Junior Sales Rep"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2832,
+        368
+      ],
+      "id": "9012e78b-cfa7-4bfd-a3f7-0715797a1835",
+      "name": "Logs-UpdatedDuplicate",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "W6g5LEsijZjqTNQI",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e10685ab-eead-4804-9a7c-c2dbc046e7d3",
+              "leftValue": "={{ $json.organization.name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2320,
+        -528
+      ],
+      "id": "49c743f0-7b6d-4cdb-ae33-2d4326334dcf",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09F7D7N3F1",
+          "mode": "list",
+          "cachedResultName": "customer-leads"
+        },
+        "text": "=:tada: New Lead Captured!\n• Name: {{ $('Edit Fields').item.json.name }}\n• Email: {{$('Edit Fields').item.json.email}}\n• Company: {{ $json.organization.name || \"N/A\"}}\n• Company Size: {{ $json.organization.estimated_num_employees|| \"N/A\"}}\n• Location: {{ $('HTTP Request').item.json.organization.raw_address|| \"N/A\"}}\n\n<https://airtable.com/appFqqvS5HEn0xaTf/tblJDvZx1PfBngZDN/viwKeWuAMB2twmL6h|View Lead in Airtable>\n\n",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        3152,
+        -544
+      ],
+      "id": "c62e9d87-16e7-4426-a7b9-0d7c1bb0f906",
+      "name": "New Lead1",
+      "webhookId": "a79f27e4-158b-461d-9efb-ed5169b4ea6a",
+      "credentials": {
+        "slackApi": {
+          "id": "Nh98QW9HKDyctQwM",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09F7D7N3F1",
+          "mode": "list",
+          "cachedResultName": "customer-leads"
+        },
+        "text": "=:warning: Lead Needs Review\n• Name: {{$('Edit Fields').item.json.name}}\n• Email: {{$('Edit Fields').item.json.email}}\n• Reason: Enrichment failed\n\n<https://airtable.com/appFqqvS5HEn0xaTf/tblJDvZx1PfBngZDN/viwKeWuAMB2twmL6h|Open in Airtable>",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        3152,
+        -112
+      ],
+      "id": "3a2b0fd1-b3b1-4fdb-9c42-30bdcd0fd2d0",
+      "name": "Lead Review1",
+      "webhookId": "7d8ad465-f8b6-48a6-993d-6f13fe01893a",
+      "credentials": {
+        "slackApi": {
+          "id": "Nh98QW9HKDyctQwM",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appFqqvS5HEn0xaTf",
+          "mode": "list",
+          "cachedResultName": "Lead Tracker",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblJDvZx1PfBngZDN",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf/tblJDvZx1PfBngZDN"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "Name": "={{ $json.Name }}",
+            "Email": "={{ $json.Email }}",
+            "Phone": "={{ $json.Phone }}",
+            "Company": "={{ $json.Company }}",
+            "Company Size": "={{ $json['Company Size'] }}",
+            "Status": "updated"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "new",
+                  "value": "new"
+                },
+                {
+                  "name": "updated",
+                  "value": "updated"
+                },
+                {
+                  "name": "needs review",
+                  "value": "needs review"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created at",
+              "displayName": "Created at",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        3376,
+        368
+      ],
+      "id": "ce268662-289a-4fbd-82e1-9fcb3a757642",
+      "name": "Leads Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "W6g5LEsijZjqTNQI",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appFqqvS5HEn0xaTf",
+          "mode": "list",
+          "cachedResultName": "Lead Tracker",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblJDvZx1PfBngZDN",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf/tblJDvZx1PfBngZDN"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Edit Fields').item.json.name }}",
+            "Email": "=",
+            "Phone": "={{ $('Edit Fields').item.json.phone }}",
+            "Company": "={{ $('HTTP Request').item.json.organization.name }}",
+            "Company Size": "={{ $('HTTP Request').item.json.organization.estimated_num_employees }}",
+            "Status": "new"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "new",
+                  "value": "new"
+                },
+                {
+                  "name": "updated",
+                  "value": "updated"
+                },
+                {
+                  "name": "needs review",
+                  "value": "needs review"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created at",
+              "displayName": "Created at",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2736,
+        -112
+      ],
+      "id": "98d1eede-9426-4c08-b643-024bf11ce542",
+      "name": "Leads-No enrichment",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "W6g5LEsijZjqTNQI",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appFqqvS5HEn0xaTf",
+          "mode": "list",
+          "cachedResultName": "Lead Tracker",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl72up3moAAncTbf",
+          "mode": "list",
+          "cachedResultName": "Logs",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf/tbl72up3moAAncTbf"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Workflow Outcome": "Created",
+            "Company": "={{ $('HTTP Request').item.json.organization.name || \"N/A\"}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Lead Name",
+              "displayName": "Lead Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Workflow Outcome",
+              "displayName": "Workflow Outcome",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Created",
+                  "value": "Created"
+                },
+                {
+                  "name": "Updated",
+                  "value": "Updated"
+                },
+                {
+                  "name": "Duplicate",
+                  "value": "Duplicate"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Error details",
+              "displayName": "Error details",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Airtable Record URL",
+              "displayName": "Airtable Record URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Rep Assigned",
+              "displayName": "Rep Assigned",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Senior Sales Manager",
+                  "value": "Senior Sales Manager"
+                },
+                {
+                  "name": "Junior Sales Rep",
+                  "value": "Junior Sales Rep"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2048,
+        -528
+      ],
+      "id": "2e4fb182-a221-4e87-b892-8819b33c1715",
+      "name": "Logs-Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "W6g5LEsijZjqTNQI",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f4d72034-5e66-44ea-93cb-f8536ffa38b4",
+              "name": "Workflow Outcome",
+              "value": "\"Error\"",
+              "type": "string"
+            },
+            {
+              "id": "1c7b45c0-be4f-4035-a6da-7f9ae7e48e6f",
+              "name": "Error Details",
+              "value": "={{$json.message}}",
+              "type": "string"
+            },
+            {
+              "id": "7dce7628-e50e-4996-bcd5-8eecb92be8f8",
+              "name": "Timestamp",
+              "value": "={{ $now }}",
+              "type": "string"
+            },
+            {
+              "id": "5d30b7e8-a0f1-4225-981b-fe635b7a206c",
+              "name": "Lead Email",
+              "value": "={{$json.email || \"N/A\"}}",
+              "type": "string"
+            },
+            {
+              "id": "f91b6b03-12e0-42c0-be73-7801f5a859dd",
+              "name": "Rep Assigned",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5600,
+        816
+      ],
+      "id": "35121920-517b-415c-b95a-f89382a1b76f",
+      "name": "Error-Hubspot"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appFqqvS5HEn0xaTf",
+          "mode": "list",
+          "cachedResultName": "Lead Tracker",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblJDvZx1PfBngZDN",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf/tblJDvZx1PfBngZDN"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Edit Fields').item.json.name }}",
+            "Email": "={{ $('Edit Fields').item.json.email }}",
+            "Phone": "={{ $('Edit Fields').item.json.phone }}",
+            "Company": "={{ $('HTTP Request').item.json.organization.name }}",
+            "Company Size": "={{ $('HTTP Request').item.json.organization.estimated_num_employees }}",
+            "Status": "new"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "new",
+                  "value": "new"
+                },
+                {
+                  "name": "updated",
+                  "value": "updated"
+                },
+                {
+                  "name": "needs review",
+                  "value": "needs review"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created at",
+              "displayName": "Created at",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2736,
+        -544
+      ],
+      "id": "2ffbd3e3-c812-4105-a5c7-6298c8ff0bbc",
+      "name": "Leads-Create a record",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "maxTries": 2,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "W6g5LEsijZjqTNQI",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4000,
+        880
+      ],
+      "id": "6174c8ba-070b-49ce-90cb-ddd7b832d8c3",
+      "name": "Error-Airtable"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        4208,
+        880
+      ],
+      "id": "d888a862-5f18-47f3-b28f-ac4ddf7206b4",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "W6g5LEsijZjqTNQI",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        4416,
+        880
+      ],
+      "id": "624ea0be-0ae5-49d8-96b6-06c3e9208c0e",
+      "name": "Send a message",
+      "webhookId": "c551bb15-8751-41af-af9c-9f25278e5f12",
+      "credentials": {
+        "slackApi": {
+          "id": "Nh98QW9HKDyctQwM",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        4624,
+        880
+      ],
+      "id": "076ae83e-9537-45fc-8372-502575a80d56",
+      "name": "Send a message2",
+      "webhookId": "4a9218a8-a035-4c4b-9238-f2534f305ca2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1DncWuHw2lMQQfMU",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        5856,
+        816
+      ],
+      "id": "9343e1b8-21a6-4915-9e9e-1a63cebbb604",
+      "name": "Create a record1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "W6g5LEsijZjqTNQI",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        6064,
+        816
+      ],
+      "id": "d769a1d2-dfb8-4f2b-809c-d923344552ba",
+      "name": "Send a message3",
+      "webhookId": "c551bb15-8751-41af-af9c-9f25278e5f12",
+      "credentials": {
+        "slackApi": {
+          "id": "Nh98QW9HKDyctQwM",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        6272,
+        816
+      ],
+      "id": "6f23303d-28a6-4b24-8610-49f9d1458452",
+      "name": "Send a message4",
+      "webhookId": "4a9218a8-a035-4c4b-9238-f2534f305ca2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1DncWuHw2lMQQfMU",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appFqqvS5HEn0xaTf",
+          "mode": "list",
+          "cachedResultName": "Lead Tracker",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblJDvZx1PfBngZDN",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appFqqvS5HEn0xaTf/tblJDvZx1PfBngZDN"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Day0_Email_Sent": true,
+            "Company Size": 0
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "new",
+                  "value": "new"
+                },
+                {
+                  "name": "updated",
+                  "value": "updated"
+                },
+                {
+                  "name": "needs review",
+                  "value": "needs review"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created at",
+              "displayName": "Created at",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Assigned Rep",
+              "displayName": "Assigned Rep",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Senior Sales Manager",
+                  "value": "Senior Sales Manager"
+                },
+                {
+                  "name": "Junior Sales Rep",
+                  "value": "Junior Sales Rep"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Last modified",
+              "displayName": "Last modified",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Day0_Email_Sent",
+              "displayName": "Day0_Email_Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        4560,
+        112
+      ],
+      "id": "c4b9daa9-07f9-463b-9c79-33ee0b451d81",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "W6g5LEsijZjqTNQI",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "listId": "68d509a7a0d550e7238402c4",
+        "name": "={{ $('Merge').item.json.fields.Name }}-{{ $('Merge').item.json.fields.Company || \"N/A\" }}",
+        "description": "=Email: {{ $json[\"Email\"] }} \nCompany Size: {{ $json[\"Company Size\"] }} \nAssigned Rep: {{ $json[\"Assigned Rep\"] }} \nAirtable Record: {{ $json[\"Airtable URL\"] }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.trello",
+      "typeVersion": 1,
+      "position": [
+        5952,
+        -256
+      ],
+      "id": "a823565d-2a7f-4fe3-8fc1-35eca02f05c3",
+      "name": "High Priority",
+      "credentials": {
+        "trelloApi": {
+          "id": "r9i2wOVi2VMJYuHF",
+          "name": "Trello account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "listId": "68d509b2749ee19bdd397ea0",
+        "name": "={{ $('Merge').item.json.fields.Name }}-{{ $('Merge').item.json.fields.Company }}",
+        "description": "=Email: {{ $json[\"Email\"] }}  \nCompany Size: {{ $json[\"Company Size\"] }}  \nAssigned Rep: {{ $json[\"Assigned Rep\"] }}  \nAirtable Record: {{ $json[\"Airtable URL\"] }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.trello",
+      "typeVersion": 1,
+      "position": [
+        5952,
+        -64
+      ],
+      "id": "e87c7e3c-85ea-44ea-ba24-a15191b34dd8",
+      "name": "New Leads",
+      "credentials": {
+        "trelloApi": {
+          "id": "r9i2wOVi2VMJYuHF",
+          "name": "Trello account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3ac278ea-e8cc-4e13-876b-a706c6cab40d",
+              "leftValue": "",
+              "rightValue": "Updated",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3040,
+        368
+      ],
+      "id": "59cc03fd-7cec-4875-9f92-36beeeac2551",
+      "name": "If"
+    }
+  ],
+  "pinData": {
+    "Typeform Trigger": [
+      {
+        "json": {
+          "FULL NAME": "Ayo Magaji",
+          "EMAIL Address...": "magaji@microsoft.com",
+          "Phone Number": "+2349037893456",
+          "JOB Title": "Cloud Technician",
+          "Would you like to request a demo?": true,
+          "Company Website": "microsoft"
+        }
+      }
+    ],
+    "HTTP Request": [
+      {
+        "json": {
+          "organization": {
+            "id": "62337760d02af100a5ca2468",
+            "name": "Microsoft",
+            "website_url": "http://www.microsoft.com",
+            "blog_url": null,
+            "angellist_url": null,
+            "linkedin_url": "http://www.linkedin.com/company/microsoft",
+            "twitter_url": "https://twitter.com/microsoft",
+            "facebook_url": "https://facebook.com/Microsoft",
+            "primary_phone": {
+              "number": "+1 800-642-7676",
+              "source": "Scraped",
+              "sanitized_number": "+18006427676"
+            },
+            "languages": [
+              "English"
+            ],
+            "alexa_ranking": 32,
+            "phone": "+1 800-642-7676",
+            "linkedin_uid": "1035",
+            "founded_year": 1975,
+            "publicly_traded_symbol": "MSFT",
+            "publicly_traded_exchange": "nasdaq",
+            "logo_url": "https://zenprospect-production.s3.amazonaws.com/uploads/pictures/68cb6cb226976c0001e069e6/picture",
+            "crunchbase_url": null,
+            "primary_domain": "microsoft.com",
+            "sic_codes": [
+              "7375"
+            ],
+            "naics_codes": [
+              "51"
+            ],
+            "sanitized_phone": "+18006427676",
+            "market_cap": "3849.9B",
+            "industry": "information technology & services",
+            "estimated_num_employees": 228000,
+            "keywords": [
+              "business software",
+              "developer tools",
+              "home",
+              "educational software",
+              "tablets",
+              "search",
+              "advertising",
+              "servers",
+              "windows operating system",
+              "windows applications",
+              "platforms",
+              "smartphones",
+              "cloud computing",
+              "quantum computing",
+              "future of work",
+              "productivity",
+              "ai",
+              "artificial intelligence",
+              "machine learning",
+              "laptops",
+              "mixed reality",
+              "virtual reality",
+              "gaming",
+              "developers",
+              "it professional",
+              "digital marketing",
+              "computer software: prepackaged software",
+              "technology",
+              "software development",
+              "customer engagement",
+              "it infrastructure",
+              "collaboration software",
+              "ai and machine learning",
+              "enterprise software",
+              "microsoft surface hub",
+              "business solutions",
+              "microsoft intune",
+              "azure cloud",
+              "remote work tools",
+              "microsoft copilot",
+              "it management",
+              "microsoft dynamics 365",
+              "microsoft power bi",
+              "azure ai services",
+              "microsoft forms",
+              "microsoft viva",
+              "microsoft bookings",
+              "cloud services",
+              "microsoft edge browser",
+              "consumer electronics",
+              "digital transformation",
+              "development tools",
+              "server applications",
+              "information technology and services",
+              "business intelligence",
+              "hardware manufacturing",
+              "gaming and entertainment",
+              "productivity applications",
+              "partner network",
+              "microsoft for education",
+              "microsoft certified partners",
+              "hybrid work solutions",
+              "enterprise solutions",
+              "microsoft power platform",
+              "global presence",
+              "microsoft education solutions",
+              "microsoft defender",
+              "microsoft stream",
+              "microsoft endpoint manager",
+              "microsoft for government",
+              "microsoft 365",
+              "microsoft store",
+              "gaming consoles",
+              "data analytics",
+              "digital workplace",
+              "microsoft partner network",
+              "surface devices",
+              "software licensing",
+              "hardware sales",
+              "microsoft cloud solution provider",
+              "microsoft for startups",
+              "windows os",
+              "microsoft to do",
+              "online advertising",
+              "microsoft whiteboard",
+              "microsoft planner",
+              "microsoft teams",
+              "cybersecurity solutions",
+              "microsoft hololens",
+              "xbox gaming",
+              "cybersecurity",
+              "b2b",
+              "b2c",
+              "b2b2c",
+              "e-commerce",
+              "d2c",
+              "non-profit",
+              "government",
+              "consulting",
+              "services",
+              "retail",
+              "innovation",
+              "security",
+              "consumer goods",
+              "healthcare",
+              "education",
+              "financial services",
+              "manufacturing",
+              "user experience",
+              "project management",
+              "enterprises",
+              "computer software",
+              "information technology & services",
+              "mobile devices",
+              "mobile",
+              "internet",
+              "games",
+              "marketing & advertising",
+              "consumers",
+              "hardware",
+              "analytics",
+              "consumer internet",
+              "nonprofit organization management",
+              "health care",
+              "health, wellness & fitness",
+              "hospital & health care",
+              "mechanical or industrial engineering",
+              "ux",
+              "computers",
+              "electronics",
+              "mobile phones",
+              "shopping"
+            ],
+            "organization_revenue_printed": "270B",
+            "organization_revenue": 270010000000,
+            "industries": [
+              "information technology & services",
+              "internet"
+            ],
+            "secondary_industries": [
+              "internet"
+            ],
+            "snippets_loaded": true,
+            "industry_tag_id": "5567cd4773696439b10b0000",
+            "industry_tag_hash": {
+              "information technology & services": "5567cd4773696439b10b0000",
+              "internet": "5567cd4d736964397e020000"
+            },
+            "retail_location_count": 96,
+            "raw_address": "1 Microsoft Way, Redmond, Washington 98052, US",
+            "street_address": "1 Microsoft Way",
+            "city": "Redmond",
+            "state": "Washington",
+            "postal_code": "98052",
+            "country": "United States",
+            "owned_by_organization_id": null,
+            "short_description": "Microsoft is a leading American multinational computer technology corporation, founded on April 4, 1975, by Bill Gates and Paul Allen. Headquartered in Redmond, Washington, Microsoft initially gained prominence by providing the MS-DOS operating system for IBM PCs, establishing itself as a dominant player in the PC software market. Over the years, the company has expanded its offerings significantly.\n\nMicrosoft is best known for its Windows operating system and the Microsoft Office suite, which includes popular applications like Word, Excel, and PowerPoint. The company also leads in cloud computing with Microsoft Azure, providing a range of services to businesses. In addition to software, Microsoft produces hardware products such as Surface tablets and Xbox gaming consoles, along with related services. With a diverse customer base that includes individual consumers, enterprises, developers, and gamers, Microsoft generated over $211 billion in revenue in 2023, reflecting its substantial influence in the technology sector.",
+            "suborganizations": [
+              {
+                "id": "54a11f8469702d918cbade01",
+                "name": "id Software",
+                "website_url": "http://www.idsoftware.com"
+              },
+              {
+                "id": "54a121b269702da4257fd902",
+                "name": "FSLogix, Inc.",
+                "website_url": "http://www.fslogix.com"
+              },
+              {
+                "id": "54a121bf69702d86b6c0b902",
+                "name": "Affirmed Networks",
+                "website_url": "http://www.affirmednetworks.com"
+              },
+              {
+                "id": "54a122ed69702d94a4a07303",
+                "name": "Sunrise Calendar",
+                "website_url": "http://www.sunrise.am"
+              },
+              {
+                "id": "54a1359569702d407ff0b800",
+                "name": "Equivio",
+                "website_url": null
+              },
+              {
+                "id": "54a13c3169702d267a5bc701",
+                "name": "Double Fine Productions",
+                "website_url": "http://www.doublefine.com"
+              },
+              {
+                "id": "54a2228274686935bea4be0f",
+                "name": "Compulsion Games",
+                "website_url": "http://www.compulsiongames.com"
+              },
+              {
+                "id": "54a25d63746869382581561d",
+                "name": "SwiftKey",
+                "website_url": "http://www.swiftkey.com"
+              },
+              {
+                "id": "556996fd7369642549476000",
+                "name": "Clipchamp",
+                "website_url": "http://www.clipchamp.com"
+              },
+              {
+                "id": "55922951736964186f64a500",
+                "name": "Mojang Specifications",
+                "website_url": null
+              },
+              {
+                "id": "57c4cac6a6da986ab61fb96c",
+                "name": "Softomotive",
+                "website_url": "http://www.softomotive.com"
+              },
+              {
+                "id": "5b12d8c9a6da98dce2e651f0",
+                "name": "ENTROPIC - ecology indoors",
+                "website_url": "http://www.entropic.ie"
+              },
+              {
+                "id": "5b15ddd7a6da9870fa40ef90",
+                "name": "Sentillion",
+                "website_url": "http://www.sentillion.com"
+              },
+              {
+                "id": "5d0a3c4b80f93e28cc335770",
+                "name": "Nuance Communications",
+                "website_url": "http://www.nuance.com"
+              },
+              {
+                "id": "5d346ef380f93e4b3bde296b",
+                "name": "Kit Office Plus Furniture Specialist",
+                "website_url": "http://www.kitofficeplus.com"
+              },
+              {
+                "id": "5f4240f343b1990001a8a9b1",
+                "name": "Skype",
+                "website_url": null
+              },
+              {
+                "id": "5f4384a8ab64b5000169f8da",
+                "name": "Beam Interactive, Inc",
+                "website_url": "http://www.beam.pro"
+              },
+              {
+                "id": "5f512653a50c03008c9cf870",
+                "name": "Franklin County Sheriff's Office",
+                "website_url": null
+              },
+              {
+                "id": "5fca408962ba9b00f6d3c961",
+                "name": "LinkedIn",
+                "website_url": "http://www.linkedin.com"
+              },
+              {
+                "id": "5fd850aa7c57cc0001e5868d",
+                "name": "Tx Pasadena Plumbing",
+                "website_url": "http://www.txpasadenaplumbing.com"
+              },
+              {
+                "id": "5b14872aa6da98711959de76",
+                "name": "InMage Systems",
+                "website_url": null
+              },
+              {
+                "id": "54a11d8a69702d97c19a2401",
+                "name": "Alpha Dog Games | Bethesda | Xbox",
+                "website_url": "http://www.alphadoggames.com"
+              },
+              {
+                "id": "6471f566869e3f0001ab9310",
+                "name": "Azure Bootcamp Switzerland",
+                "website_url": "http://www.azurebootcamp.ch"
+              },
+              {
+                "id": "66e584f9e34b4900016aa379",
+                "name": "Dimond Plumbing & Heating",
+                "website_url": "http://www.dimondplumbing.com"
+              },
+              {
+                "id": "66e62188e67a0300017ba0c3",
+                "name": "Industry Insights",
+                "website_url": "http://www.microsoftindustryinsights.com"
+              },
+              {
+                "id": "6713b8a4de521c0001f131b4",
+                "name": "Mobile Data Labs, Inc.",
+                "website_url": null
+              },
+              {
+                "id": "54a11c0969702d88c4b87100",
+                "name": "Xamarin",
+                "website_url": "http://www.xamarin.com"
+              },
+              {
+                "id": "54a11c4569702da425d39300",
+                "name": "Obsidian Entertainment",
+                "website_url": "http://www.obsidian.net"
+              },
+              {
+                "id": "54a1354369702d407f038f00",
+                "name": "Moverve Ltd.",
+                "website_url": "http://www.movere.io"
+              },
+              {
+                "id": "54a23b3e74686930c29e0b18",
+                "name": "The Nuance Group",
+                "website_url": null
+              },
+              {
+                "id": "55698efe736964255dd95300",
+                "name": "Network Office Sunshine Coast",
+                "website_url": "http://www.networkofficesc.com.au"
+              },
+              {
+                "id": "556dc857736964122fde8d01",
+                "name": "MachineGames",
+                "website_url": "http://www.machinegames.com"
+              },
+              {
+                "id": "57c508dfa6da986aa0d47304",
+                "name": "The Marsden Group",
+                "website_url": "http://www.themarsdengroup.com"
+              },
+              {
+                "id": "5a9dd9d3a6da98d94d8f4ecc",
+                "name": "Fungible, Inc., Acquired by Microsoft",
+                "website_url": null
+              },
+              {
+                "id": "5a9ebc7fa6da98d9852e0e1d",
+                "name": "Start.gg",
+                "website_url": "http://www.start.gg"
+              },
+              {
+                "id": "5b14a857a6da987135f96acf",
+                "name": "TakeLessons",
+                "website_url": "http://www.takelessons.com"
+              },
+              {
+                "id": "5b14d201a6da987104b4d2f9",
+                "name": "ReFirm Labs, Inc.",
+                "website_url": "http://www.refirmlabs.com"
+              },
+              {
+                "id": "631b9c2a4bc6460001b91c52",
+                "name": "jClarity Ltd.",
+                "website_url": "http://www.jclarity.com"
+              },
+              {
+                "id": "637b3e59472e8400d0e5eee5",
+                "name": "Minecraft",
+                "website_url": null
+              },
+              {
+                "id": "64a9bec31f1de90001b3c534",
+                "name": "MH Office Machines",
+                "website_url": "http://www.mhoffice.co.za"
+              },
+              {
+                "id": "6593c17cdbb70e0001d27087",
+                "name": "Pace Plumbing Inc",
+                "website_url": "http://www.pace-plumbing.com"
+              },
+              {
+                "id": "65ff74cbbb8650000781e6b7",
+                "name": "MetricsHub",
+                "website_url": "http://www.metricshub.com"
+              },
+              {
+                "id": "66531c99e2f4fd0001e83db6",
+                "name": "Craftsman Plumbing",
+                "website_url": "http://www.craftsman-plumbing.com"
+              },
+              {
+                "id": "66ffc33c46c1750001a55af1",
+                "name": "McNabb Plumbing",
+                "website_url": "http://www.mcnabbplumbing.com"
+              },
+              {
+                "id": "6817428ad3dd1000015d72a8",
+                "name": "Parature, Inc.",
+                "website_url": "http://www.parature.com"
+              },
+              {
+                "id": "54a134d169702d3cbb1c6500",
+                "name": "Adallom",
+                "website_url": "http://www.adallom.com"
+              },
+              {
+                "id": "54a12ada69702d8cfc917802",
+                "name": "Acompli",
+                "website_url": "http://www.acompli.com"
+              },
+              {
+                "id": "54a1228e69702d97c1d46603",
+                "name": "Activision",
+                "website_url": "http://www.activision.com"
+              },
+              {
+                "id": "55f17fe6f3e5bb2d5d0012be",
+                "name": "Intentional Software Corporation",
+                "website_url": "http://www.intentional.com"
+              },
+              {
+                "id": "5e55b1f35a0b88000100e513",
+                "name": "Typically A Barkeeper",
+                "website_url": "http://www.mixer.com"
+              },
+              {
+                "id": "5a9dff35a6da98d935692699",
+                "name": "Lobe",
+                "website_url": "http://www.lobe.ai"
+              },
+              {
+                "id": "5cb650a5a3ae61a4282e4a0a",
+                "name": "InMage Sys",
+                "website_url": "http://www.inmage.com"
+              },
+              {
+                "id": "5fc8ff3a3733540001a4e353",
+                "name": "xiaobing.ai",
+                "website_url": "http://www.xiaoice.com"
+              },
+              {
+                "id": "54a1214369702d84c5819502",
+                "name": "SyntaxTree",
+                "website_url": "http://www.syntaxtree.com"
+              },
+              {
+                "id": "5a9cbbada6da98d9663dd342",
+                "name": "Activision Blizzard",
+                "website_url": "http://www.activisionblizzard.com"
+              },
+              {
+                "id": "54a122e769702d77c26e3e03",
+                "name": "Revolution Analytics",
+                "website_url": "http://www.revolutionanalytics.com"
+              },
+              {
+                "id": "54a129a869702d8cfc6fed01",
+                "name": "Blizzard Entertainment",
+                "website_url": "http://www.blizzard.com"
+              },
+              {
+                "id": "54a1227569702da4257f3b03",
+                "name": "Yammer, Inc.",
+                "website_url": "http://www.yammer.com"
+              },
+              {
+                "id": "5c20df0b80f93e61af9bc6e8",
+                "name": "M12, Microsoft's Venture Fund",
+                "website_url": "http://www.m12.vc"
+              },
+              {
+                "id": "54a12a0d69702dc128c5ab01",
+                "name": "Playground Games",
+                "website_url": "http://www.playground-games.com"
+              },
+              {
+                "id": "54a11e6d69702d84c57d6801",
+                "name": "BlueTalon, Inc. (A Microsoft Company)",
+                "website_url": "http://www.bluetalon.com"
+              },
+              {
+                "id": "63108bed70779900012967bb",
+                "name": "PlayFab, Inc.",
+                "website_url": "http://www.playfab.com"
+              },
+              {
+                "id": "66433952ad27520001507e0c",
+                "name": "Community Sift",
+                "website_url": "http://www.communitysift.com"
+              },
+              {
+                "id": "66443d54e5373800019bd51a",
+                "name": "Cloudyn Software Ltd.",
+                "website_url": null
+              },
+              {
+                "id": "54a12a2769702dcef984fb01",
+                "name": "Cycle Computing",
+                "website_url": "http://www.cyclecomputing.com"
+              },
+              {
+                "id": "55e8ba94f3e5bb16c00003a0",
+                "name": "XOXCO",
+                "website_url": "http://www.xoxco.com"
+              },
+              {
+                "id": "54a129bf69702d9ebca7a101",
+                "name": "Undead Labs",
+                "website_url": "http://www.undeadlabs.com"
+              },
+              {
+                "id": "5fd1af17524d9b000112d28f",
+                "name": "XboxGamers",
+                "website_url": "http://www.xboxgamers.com"
+              },
+              {
+                "id": "54a120d769702d8aa1b96e02",
+                "name": "ADRM Software, Inc.",
+                "website_url": "http://www.adrm.com"
+              },
+              {
+                "id": "556d49e173696411f461e000",
+                "name": "Visio Corporation",
+                "website_url": "http://www.visiocorp.info"
+              },
+              {
+                "id": "54a128ca69702d9b8bac4b01",
+                "name": "VoloMetrix",
+                "website_url": "http://www.volometrix.com"
+              },
+              {
+                "id": "54a23b2f7468692e71d75718",
+                "name": "Bethesda Softworks",
+                "website_url": "http://www.bethesda.net"
+              },
+              {
+                "id": "54a1215169702d8aa14aa202",
+                "name": "Danger",
+                "website_url": "http://www.danger.com"
+              },
+              {
+                "id": "556da64373696412383b5a01",
+                "name": "Hexadite",
+                "website_url": "http://www.hexadite.com"
+              },
+              {
+                "id": "55699e7573696425c43e6700",
+                "name": "ECONOMY PLUMBING AND HEATING LIMITED",
+                "website_url": "http://www.economyplumbingheating.com"
+              },
+              {
+                "id": "6030d8fbcf1874008c657c9a",
+                "name": "Arkane Studios",
+                "website_url": "http://www.arkane-studios.com"
+              },
+              {
+                "id": "54a13c8769702d2d7fb10b02",
+                "name": "Adxstudio, from Microsoft",
+                "website_url": "http://www.adxstudio.com"
+              },
+              {
+                "id": "60bf366c8f3a0501153b1216",
+                "name": "Microsoft Casual Games Studio",
+                "website_url": "http://www.microsoftcasualgames.com"
+              },
+              {
+                "id": "670b70565058820001b4287e",
+                "name": "English Lesson via Skype",
+                "website_url": "http://www.englishlessonviaskype.com"
+              },
+              {
+                "id": "67149bf68d35110001e99a41",
+                "name": "LEGAL & STRATEGY ADVISORY OFFICE (LSA SARL U)",
+                "website_url": "http://www.lsaoffice.net"
+              },
+              {
+                "id": "672d960167014d0001f2bb41",
+                "name": "Bit Stadium GmbH",
+                "website_url": "http://www.hockeyapp.net"
+              },
+              {
+                "id": "673007ac0af9f60001daebce",
+                "name": "525 Plumbing Services",
+                "website_url": "http://www.525plumbingservices.com"
+              },
+              {
+                "id": "675bd9ba186b6200011ce0ba",
+                "name": "Genee, Inc.",
+                "website_url": "http://www.genee.me"
+              },
+              {
+                "id": "676750fab0d3900001a74e77",
+                "name": "Mover, Inc.",
+                "website_url": "http://www.mover.io"
+              },
+              {
+                "id": "6865e72f4253050001224f48",
+                "name": "Ally Technologies, Inc.",
+                "website_url": "http://www.ally.io"
+              },
+              {
+                "id": "5da2932048f62a00018e5a6a",
+                "name": "Innov8 Workplace Solutions",
+                "website_url": "http://www.innov8office.com"
+              },
+              {
+                "id": "5e5619bd51043e000141ca80",
+                "name": "BleepingComputer",
+                "website_url": "http://www.bleepingcomputer.com"
+              },
+              {
+                "id": "54a135e969702d449459eb00",
+                "name": "CAPPTAIN",
+                "website_url": "http://www.capptain.com"
+              },
+              {
+                "id": "54a2688e74686935bee3b020",
+                "name": "Jumpstart Business Centre",
+                "website_url": "http://www.jumpstartoffices.com"
+              },
+              {
+                "id": "54a12a2269702d8cfc052302",
+                "name": "ZeniMax Media",
+                "website_url": "http://www.zenimax.com"
+              },
+              {
+                "id": "5f4618d3d2cfda000174c8e1",
+                "name": "Genee",
+                "website_url": "http://www.calendar.help"
+              },
+              {
+                "id": "5569424e73696420fe4c2100",
+                "name": "Citus Data",
+                "website_url": "http://www.citusdata.com"
+              },
+              {
+                "id": "5f45188cb90ba700010be795",
+                "name": "Xandr",
+                "website_url": "http://www.xandr.com"
+              },
+              {
+                "id": "58876433f651250df21baa8f",
+                "name": "Wand Labs",
+                "website_url": "http://www.wandlabs.com"
+              },
+              {
+                "id": "61446c56ccfbe0000172737a",
+                "name": "Coach Microsoft 365",
+                "website_url": "http://www.coachoffice365.com"
+              },
+              {
+                "id": "64207bf080f20f0001842727",
+                "name": "VISUALSTUDIO.TV, INC.",
+                "website_url": "http://www.visualstudio.tv"
+              },
+              {
+                "id": "670209184352a40001038cf3",
+                "name": "6 Wunderkinder GmbH",
+                "website_url": "http://www.6wunderkinder.com"
+              },
+              {
+                "id": "6726929d3ca5f7000196e407",
+                "name": "Office365brasil",
+                "website_url": "http://www.office365brasil.com.br"
+              },
+              {
+                "id": "67306148cfd91b0001160dfe",
+                "name": "Leak-Tek Plumbing",
+                "website_url": "http://www.leaktekplumbing.com"
+              },
+              {
+                "id": "673321b6558f8c0001d75cd6",
+                "name": "Groove 2 Music",
+                "website_url": "http://www.groovemusicapp.com"
+              },
+              {
+                "id": "68230888eb923d00013fdcca",
+                "name": "Programmeren in de bieb",
+                "website_url": "http://www.ticketoffice-spn.nl"
+              },
+              {
+                "id": "54a11b9d69702d88c4df4800",
+                "name": "RiskIQ",
+                "website_url": "http://www.riskiq.com"
+              },
+              {
+                "id": "54a11e4e69702d9a8bfb6b01",
+                "name": "Perceptive Pixel",
+                "website_url": "http://www.perceptivepixel.azurewebsites.net"
+              },
+              {
+                "id": "54a11f0869702da42560a601",
+                "name": "Lookout Software, LLC.",
+                "website_url": "http://www.officetimesheets.com"
+              },
+              {
+                "id": "54a11fd869702d88c4bce701",
+                "name": "N-trig",
+                "website_url": "http://www.n-trig.com"
+              },
+              {
+                "id": "54a1216269702d8cccecc302",
+                "name": "Chalkup",
+                "website_url": "http://www.chalkup.co"
+              },
+              {
+                "id": "54a1216369702d8ccc26c402",
+                "name": "MetricsHub, Inc. (Acquired by Microsoft)",
+                "website_url": null
+              },
+              {
+                "id": "54a122a669702d8aa13a2403",
+                "name": "Peer5",
+                "website_url": "http://www.peer5.com"
+              },
+              {
+                "id": "54a1292169702d9313d07c01",
+                "name": "Havok",
+                "website_url": "http://www.havok.com"
+              },
+              {
+                "id": "54a1396d69702d2bfd165c00",
+                "name": "Maluuba",
+                "website_url": "http://www.maluuba.com"
+              },
+              {
+                "id": "54a13c5569702d2d7fc4fe01",
+                "name": "Keppel FELS Ltd",
+                "website_url": null
+              },
+              {
+                "id": "54a1b9137468694012c8460b",
+                "name": "Ninja Theory",
+                "website_url": "http://www.ninjatheory.com"
+              },
+              {
+                "id": "54a1bc5c7468695c82c9220c",
+                "name": "FieldOne from Microsoft",
+                "website_url": "http://www.fieldone.com"
+              },
+              {
+                "id": "559217407369642393b50600",
+                "name": "Sybari Software",
+                "website_url": "http://www.sybari.com"
+              },
+              {
+                "id": "56ddf962f3e5bb21fd0002c8",
+                "name": "Deis, Inc",
+                "website_url": "http://www.deis.com"
+              },
+              {
+                "id": "57c4ef13a6da986ab10c1f12",
+                "name": "Sodexo Fuel & Fleet Expertise Center",
+                "website_url": null
+              },
+              {
+                "id": "5b866d0c324d4479b90ae184",
+                "name": "CloudKnox Security Inc. (Acquired by Microsoft Corporation)",
+                "website_url": "http://www.cloudknox.io"
+              },
+              {
+                "id": "5d348581f6512502aa7cbf27",
+                "name": "CyberX",
+                "website_url": null
+              },
+              {
+                "id": "5f490b0d5c0bd9008c50ae45",
+                "name": "Vexcel Corporation, a Microsoft company",
+                "website_url": "http://www.vexcel.com"
+              },
+              {
+                "id": "5f49751cf64e21000126b23f",
+                "name": "Secure Islands Technologies (acquired by Microsoft)",
+                "website_url": "http://www.secureislands.com"
+              },
+              {
+                "id": "5f49983a84af000001fbd677",
+                "name": "Blockchain Project Management Office",
+                "website_url": "http://www.blockchainpmoffice.com"
+              },
+              {
+                "id": "5fd1a6751444d500014eee83",
+                "name": "Microsoft Israel R&D Center",
+                "website_url": "http://www.microsoftrnd.co.il"
+              },
+              {
+                "id": "60a60f0d7583d500019ea99b",
+                "name": "GreenButton Limited",
+                "website_url": "http://www.greenbutton.com"
+              },
+              {
+                "id": "5fd19f225f0a3c0001393873",
+                "name": "Sharepointed",
+                "website_url": "http://www.sharepointed.com"
+              },
+              {
+                "id": "615e69582c549c00010659a4",
+                "name": "Xboxygen",
+                "website_url": "http://www.xboxygen.com"
+              },
+              {
+                "id": "618a7727bb98350001e3933e",
+                "name": "MondoXbox",
+                "website_url": "http://www.mondoxbox.es"
+              },
+              {
+                "id": "63e7333c3fdd550001f153f1",
+                "name": "Worldofminecraft",
+                "website_url": "http://www.worldofminecraft.com"
+              },
+              {
+                "id": "666268c6c6860e0001e675b4",
+                "name": "Parature Technical University",
+                "website_url": null
+              },
+              {
+                "id": "66e6f8181f8f7e0001689b4b",
+                "name": "DoubleLabs",
+                "website_url": "http://www.echolocker.com"
+              },
+              {
+                "id": "66fe6d24f218bc0001cf7595",
+                "name": "METASWITCH LIMITED",
+                "website_url": null
+              },
+              {
+                "id": "5d5ad86fc3104400f5dc55d3",
+                "name": "Ally.io, a Microsoft Company",
+                "website_url": null
+              },
+              {
+                "id": "54a1b3ce74686949e7ea8709",
+                "name": "Dawkins Office Supplies and Equipment Company",
+                "website_url": "http://www.dawkinsofficesupply.com"
+              },
+              {
+                "id": "54a11dc569702d97c1b03b01",
+                "name": "PhoneFactor, now a Microsoft Company",
+                "website_url": "http://www.phonefactor.com"
+              },
+              {
+                "id": "5a9ea236a6da98d98c6ee079",
+                "name": "Lumenisity Limited",
+                "website_url": "http://www.lumenisity.com"
+              },
+              {
+                "id": "5d36c10ca3ae61ecb5f7b518",
+                "name": "微软移动联新互联网服务有限公司",
+                "website_url": null
+              },
+              {
+                "id": "559239727369642529985f00",
+                "name": "Avere Systems",
+                "website_url": "http://www.averesystems.com"
+              },
+              {
+                "id": "54a1290769702d8b19c2e301",
+                "name": "AltspaceVR",
+                "website_url": "http://www.altvr.com"
+              },
+              {
+                "id": "54a1358d69702d36c9dce200",
+                "name": "inXile entertainment",
+                "website_url": "http://www.inxile-entertainment.com"
+              },
+              {
+                "id": "54a1207269702da4250b5402",
+                "name": "AdECN",
+                "website_url": "http://www.adecn.com"
+              },
+              {
+                "id": "54a11fa369702da753600202",
+                "name": "Drum Tuition - Private Teaching 1:1",
+                "website_url": null
+              },
+              {
+                "id": "54a1350369702d2f9ff9cc00",
+                "name": "Simplygon",
+                "website_url": "http://www.simplygon.com"
+              },
+              {
+                "id": "60b2ec5f0ad63d000142ede0",
+                "name": "Bonsai",
+                "website_url": "http://www.bons.ai"
+              },
+              {
+                "id": "5b15a16da6da9870fd285292",
+                "name": "Opalis Software",
+                "website_url": "http://www.opalis.com"
+              },
+              {
+                "id": "54a1271e69702da220fd4b00",
+                "name": "FantasySalesTeam",
+                "website_url": "http://www.fantasysalesteam.com"
+              },
+              {
+                "id": "6531f73088a97a00011ef9cc",
+                "name": "Fungible Inc., Acquired by Microsoft",
+                "website_url": "http://www.fungible.com"
+              },
+              {
+                "id": "665ac83308bddf000133ef52",
+                "name": "Power BI Design",
+                "website_url": "http://www.powerbidesign.com"
+              },
+              {
+                "id": "66a11cf47966220001e45c41",
+                "name": "CyberX, Inc.",
+                "website_url": "http://www.cyberx-labs.com"
+              },
+              {
+                "id": "66f04131e79abd00019a3945",
+                "name": "1st Choice Tuxedo Rental",
+                "website_url": "http://www.tuxedorentalhibbing.com"
+              },
+              {
+                "id": "67316dad9714f50001ab79f8",
+                "name": "Cloudyn Software, Inc.",
+                "website_url": "http://www.cloudyn.com"
+              },
+              {
+                "id": "674d0a0eb453520001e7f4d5",
+                "name": "KPI Power BI",
+                "website_url": "http://www.kpipowerbi.com.br"
+              },
+              {
+                "id": "689ad906c19f65000132d202",
+                "name": "Xbox",
+                "website_url": "http://www.xbox.com"
+              },
+              {
+                "id": "54a11c1669702d94a4e07600",
+                "name": "AVIcode",
+                "website_url": "http://www.avicode.com"
+              },
+              {
+                "id": "54a11e4369702d9d7ef75d01",
+                "name": "Microsoft PromoteIQ",
+                "website_url": "http://www.promoteiq.com"
+              },
+              {
+                "id": "54a11fe469702d918c841502",
+                "name": "Code Connect Inc.",
+                "website_url": "http://www.codeconnect.io"
+              },
+              {
+                "id": "54a120ad69702d7fe6258c02",
+                "name": "MobiComp",
+                "website_url": "http://www.mobicomp.in"
+              },
+              {
+                "id": "54a1216269702d7fe61fcc02",
+                "name": "Metanautix",
+                "website_url": "http://www.metanautix.com"
+              },
+              {
+                "id": "54a1275769702d8b1954e500",
+                "name": "Winternals Software",
+                "website_url": "http://www.winternals.com"
+              },
+              {
+                "id": "54a127e669702dc128ad8c00",
+                "name": "InCycle Software",
+                "website_url": "http://www.incyclesoftware.com"
+              },
+              {
+                "id": "556950fa73696425e2f80200",
+                "name": "Minit Process Mining (Now Part of Microsoft Power Automate)",
+                "website_url": "http://www.minit.io"
+              },
+              {
+                "id": "556e395773696410e5564f01",
+                "name": "Semantic Machines",
+                "website_url": "http://www.semanticmachines.com"
+              },
+              {
+                "id": "5591fb657369641912510e00",
+                "name": "Snake 'n'​ Rooter Plumbing Company",
+                "website_url": "http://www.snakenrooterplumbing.com"
+              },
+              {
+                "id": "5592379c736964583ee06d00",
+                "name": "com365",
+                "website_url": "http://www.microsoft365.com"
+              },
+              {
+                "id": "55f4205ff3e5bb1e54005d51",
+                "name": "Kinvolk (acquired by Microsoft)",
+                "website_url": "http://www.kinvolk.io"
+              },
+              {
+                "id": "5a9cce5fa6da98d932dfaabc",
+                "name": "Suplari, Inc.",
+                "website_url": "http://www.suplari.com"
+              },
+              {
+                "id": "5b833f1af874f71d9d7b57eb",
+                "name": "JM OFFICE STATIONERY LIMITED",
+                "website_url": "http://www.jmoffice.co.uk"
+              },
+              {
+                "id": "5c2509fe80f93e23fb0cf2a4",
+                "name": "ZeniMax Europe",
+                "website_url": null
+              },
+              {
+                "id": "5d364f6680f93e610f9eef98",
+                "name": "Clear Software (Acquired by Microsoft)",
+                "website_url": "http://www.clearsoftware.com"
+              },
+              {
+                "id": "5ed228de3b3bf90001316d6e",
+                "name": "FEDERATION REGIONALE DES OFFICES DE TOURISME PROVENCE ALPES COTE D'AZUR",
+                "website_url": "http://www.offices-tourisme-sud.fr"
+              },
+              {
+                "id": "5ed65a6f80cf3200017ff484",
+                "name": "Vision IQ",
+                "website_url": "http://www.ombak126paus.biz"
+              },
+              {
+                "id": "5fc8de5191bd9400bfc52051",
+                "name": "GitHub",
+                "website_url": "http://www.github.com"
+              },
+              {
+                "id": "6049237a3a29380001923ef9",
+                "name": "343industries",
+                "website_url": "http://www.343industries.org"
+              },
+              {
+                "id": "60be2a559575980001375583",
+                "name": "Mojang Studios",
+                "website_url": "http://www.minecraft.net"
+              },
+              {
+                "id": "672b2d4eeb6afb00016efc1c",
+                "name": "Plumbing Sugar Land TX",
+                "website_url": "http://www.plumbing-sugarland.com"
+              },
+              {
+                "id": "6730cbeb24c32c0001ccf556",
+                "name": "New Life Pressie Playgroup",
+                "website_url": "http://www.newlifeofficer.org.au"
+              },
+              {
+                "id": "673310cb74c05f0001e8a8e6",
+                "name": "Two Hat Security Ltd.",
+                "website_url": "http://www.twohat.com"
+              },
+              {
+                "id": "679d5a8a0a982f0001513d0a",
+                "name": "Bing",
+                "website_url": "http://www.bing.com"
+              }
+            ],
+            "num_suborganizations": 176,
+            "annual_revenue_printed": "270B",
+            "annual_revenue": 270010000000,
+            "technology_names": [
+              "ASP.NET",
+              "Adobe Media Optimizer",
+              "Akamai",
+              "Apache",
+              "Bing Ads",
+              "Bootstrap Framework",
+              "ClickTale",
+              "DoubleClick",
+              "DoubleClick Conversion",
+              "F5 BIG-IP",
+              "Facebook Custom Audiences",
+              "Facebook Login (Connect)",
+              "Facebook Widget",
+              "Google Dynamic Remarketing",
+              "Google Tag Manager",
+              "Linkedin Marketing Solutions",
+              "LivePerson Monitor",
+              "Marketo",
+              "Microsoft Azure Hosting",
+              "Microsoft Office 365",
+              "Mobile Friendly",
+              "Multilingual",
+              "New Relic",
+              "Nginx",
+              "Omniture (Adobe)",
+              "Outlook",
+              "SOASTA",
+              "Scene7",
+              "Vidyard",
+              "WordPress.org",
+              "YouTube",
+              "iTunes",
+              "reCAPTCHA"
+            ],
+            "current_technologies": [
+              {
+                "uid": "asp_net",
+                "name": "ASP.NET",
+                "category": "Frameworks and Programming Languages"
+              },
+              {
+                "uid": "adobe_media_optimizer",
+                "name": "Adobe Media Optimizer",
+                "category": "Search Marketing"
+              },
+              {
+                "uid": "akamai",
+                "name": "Akamai",
+                "category": "Content Delivery Networks"
+              },
+              {
+                "uid": "apache",
+                "name": "Apache",
+                "category": "Load Balancers"
+              },
+              {
+                "uid": "bing_ads",
+                "name": "Bing Ads",
+                "category": "Advertising Networks"
+              },
+              {
+                "uid": "bootstrap_framework",
+                "name": "Bootstrap Framework",
+                "category": "CSS and JavaScript Libraries"
+              },
+              {
+                "uid": "clicktale",
+                "name": "ClickTale",
+                "category": "Analytics and Tracking"
+              },
+              {
+                "uid": "doubleclick",
+                "name": "DoubleClick",
+                "category": "Ad Servers"
+              },
+              {
+                "uid": "doubleclick_conversion",
+                "name": "DoubleClick Conversion",
+                "category": "Advertising Networks"
+              },
+              {
+                "uid": "f5_big-ip",
+                "name": "F5 BIG-IP",
+                "category": "Load Balancers"
+              },
+              {
+                "uid": "facebook_web_custom_audiences",
+                "name": "Facebook Custom Audiences",
+                "category": "Retargeting"
+              },
+              {
+                "uid": "facebook_login",
+                "name": "Facebook Login (Connect)",
+                "category": "Social Login"
+              },
+              {
+                "uid": "facebook_widget",
+                "name": "Facebook Widget",
+                "category": "Widgets"
+              },
+              {
+                "uid": "google_dynamic_remarketing",
+                "name": "Google Dynamic Remarketing",
+                "category": "Retargeting"
+              },
+              {
+                "uid": "google_tag_manager",
+                "name": "Google Tag Manager",
+                "category": "Tag Management"
+              },
+              {
+                "uid": "linkedin_display_ads__formerly_bizo",
+                "name": "Linkedin Marketing Solutions",
+                "category": "Advertising Networks"
+              },
+              {
+                "uid": "liveperson_monitor",
+                "name": "LivePerson Monitor",
+                "category": "Chats"
+              },
+              {
+                "uid": "marketo",
+                "name": "Marketo",
+                "category": "Marketing Automation"
+              },
+              {
+                "uid": "microsoft",
+                "name": "Microsoft Azure Hosting",
+                "category": "Hosting"
+              },
+              {
+                "uid": "office_365",
+                "name": "Microsoft Office 365",
+                "category": "Other"
+              },
+              {
+                "uid": "mobile_friendly",
+                "name": "Mobile Friendly",
+                "category": "Other"
+              },
+              {
+                "uid": "multilingual",
+                "name": "Multilingual",
+                "category": "Widgets"
+              },
+              {
+                "uid": "new_relic",
+                "name": "New Relic",
+                "category": "Web Performance Monitoring"
+              },
+              {
+                "uid": "nginx",
+                "name": "Nginx",
+                "category": "Load Balancers"
+              },
+              {
+                "uid": "omniture_adobe",
+                "name": "Omniture (Adobe)",
+                "category": "Analytics and Tracking"
+              },
+              {
+                "uid": "outlook",
+                "name": "Outlook",
+                "category": "Email Providers"
+              },
+              {
+                "uid": "soasta",
+                "name": "SOASTA",
+                "category": "Web Performance Monitoring"
+              },
+              {
+                "uid": "scene7",
+                "name": "Scene7",
+                "category": "E-commerce Tools"
+              },
+              {
+                "uid": "vidyard",
+                "name": "Vidyard",
+                "category": "Online Video Platforms"
+              },
+              {
+                "uid": "wordpress_org",
+                "name": "WordPress.org",
+                "category": "CMS"
+              },
+              {
+                "uid": "youtube",
+                "name": "YouTube",
+                "category": "Online Video Platforms"
+              },
+              {
+                "uid": "itunes",
+                "name": "iTunes",
+                "category": "Widgets"
+              },
+              {
+                "uid": "recaptcha",
+                "name": "reCAPTCHA",
+                "category": "Captcha"
+              }
+            ],
+            "org_chart_root_people_ids": [
+              "67a683b4359ad8000147cb69"
+            ],
+            "org_chart_sector": "OrgChart::SectorHierarchy::Rules::IT",
+            "org_chart_removed": false,
+            "org_chart_show_department_filter": true,
+            "departmental_head_count": {
+              "education": 19636,
+              "support": 14851,
+              "data_science": 3322,
+              "arts_and_design": 3077,
+              "finance": 3452,
+              "engineering": 85168,
+              "marketing": 5468,
+              "product_management": 8286,
+              "operations": 4213,
+              "business_development": 9412,
+              "human_resources": 4025,
+              "consulting": 5148,
+              "legal": 922,
+              "information_technology": 7683,
+              "media_and_commmunication": 1655,
+              "sales": 12802,
+              "accounting": 1991,
+              "administrative": 2414,
+              "entrepreneurship": 329
+            },
+            "generic_org_insights": null
+          }
+        }
+      }
+    ],
+    "Create or update a contact": [
+      {
+        "json": {
+          "vid": 453754570998,
+          "canonical-vid": 453754570998,
+          "merged-vids": [],
+          "portal-id": 146953071,
+          "is-contact": true,
+          "properties": {
+            "num_unique_conversion_events": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "CALCULATED",
+                  "source-id": null,
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710667289,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_latest_source": {
+              "value": "OFFLINE",
+              "versions": [
+                {
+                  "value": "OFFLINE",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_analytics_revenue": {
+              "value": "0.0",
+              "versions": [
+                {
+                  "value": "0.0",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_prospecting_agent_total_enrolled_count": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "CALCULATED",
+                  "source-id": "InitialRollupProperties",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_membership_has_accessed_private_content": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "CALCULATED",
+                  "source-id": "CalculatedPropertyComputer",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "createdate": {
+              "value": "1758710666807",
+              "versions": [
+                {
+                  "value": "1758710666807",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_registered_member": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "CALCULATED",
+                  "source-id": "CalculatedPropertyComputer",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_object_source_id": {
+              "value": "223580",
+              "versions": [
+                {
+                  "value": "223580",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "mobilephone": {
+              "value": "+2349037893456",
+              "versions": [
+                {
+                  "value": "+2349037893456",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666797,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_analytics_num_page_views": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_latest_source_timestamp": {
+              "value": "1758710640000",
+              "versions": [
+                {
+                  "value": "1758710640000",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_analytics_average_page_views": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_all_contact_vids": {
+              "value": "453754570998",
+              "versions": [
+                {
+                  "value": "453754570998",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_is_contact": {
+              "value": "true",
+              "versions": [
+                {
+                  "value": "true",
+                  "source-type": "CALCULATED",
+                  "source-id": null,
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "num_conversion_events": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "CALCULATED",
+                  "source-id": null,
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710667289,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_object_id": {
+              "value": "453754570998",
+              "versions": [
+                {
+                  "value": "453754570998",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_analytics_num_event_completions": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_v2_date_entered_lead": {
+              "value": "1758710666807",
+              "versions": [
+                {
+                  "value": "1758710666807",
+                  "source-type": "CALCULATED",
+                  "source-id": "StageCalculatedPropertiesRollup",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_lifecyclestage_lead_date": {
+              "value": "1758710666807",
+              "versions": [
+                {
+                  "value": "1758710666807",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "company_size": {
+              "value": "228000",
+              "versions": [
+                {
+                  "value": "228000",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666797,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_latest_source_data_2": {
+              "value": "223580",
+              "versions": [
+                {
+                  "value": "223580",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_latest_source_data_1": {
+              "value": "INTEGRATION",
+              "versions": [
+                {
+                  "value": "INTEGRATION",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_is_unworked": {
+              "value": "true",
+              "versions": [
+                {
+                  "value": "true",
+                  "source-type": "CALCULATED",
+                  "source-id": "CalculatedPropertyComputer",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "firstname": {
+              "value": "Ayo Magaji",
+              "versions": [
+                {
+                  "value": "Ayo Magaji",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666797,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "associatedcompanyid": {
+              "value": "243522992334",
+              "versions": [
+                {
+                  "value": "243522992334",
+                  "source-type": "CALCULATED",
+                  "source-id": "RollupProperties",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710668969,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_pipeline": {
+              "value": "contacts-lifecycle-pipeline",
+              "versions": [
+                {
+                  "value": "contacts-lifecycle-pipeline",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_social_num_broadcast_clicks": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_object_source_detail_1": {
+              "value": "n8n.cloud",
+              "versions": [
+                {
+                  "value": "n8n.cloud",
+                  "source-type": "INTERNAL_PROCESSING",
+                  "source-id": "RecordSourceDetailsWriterWorker",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710667319,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_messaging_engagement_score": {
+              "value": "0.65600705",
+              "versions": [
+                {
+                  "value": "0.65600705",
+                  "source-type": "EMAIL",
+                  "source-id": "MessagingContactEngagementScoreEvaluator",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758737628845,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_associated_target_accounts": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "CALCULATED",
+                  "source-id": "InitialRollupProperties",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_analytics_num_visits": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_object_source_label": {
+              "value": "INTEGRATION",
+              "versions": [
+                {
+                  "value": "INTEGRATION",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_sequences_actively_enrolled_count": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "CALCULATED",
+                  "source-id": "InitialRollupProperties",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_social_linkedin_clicks": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_analytics_source": {
+              "value": "OFFLINE",
+              "versions": [
+                {
+                  "value": "OFFLINE",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_searchable_calculated_mobile_number": {
+              "value": "9037893456",
+              "versions": [
+                {
+                  "value": "9037893456",
+                  "source-type": "CALCULATED",
+                  "source-id": null,
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_prospecting_agent_actively_enrolled_count": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "CALCULATED",
+                  "source-id": "InitialRollupProperties",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_email_domain": {
+              "value": "microsoft.com",
+              "versions": [
+                {
+                  "value": "microsoft.com",
+                  "source-type": "CALCULATED",
+                  "source-id": null,
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_currently_enrolled_in_prospecting_agent": {
+              "value": "false",
+              "versions": [
+                {
+                  "value": "false",
+                  "source-type": "CALCULATED",
+                  "source-id": "CalculatedPropertyComputer",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "company": {
+              "value": "Microsoft",
+              "versions": [
+                {
+                  "value": "Microsoft",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666797,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "email": {
+              "value": "magaji@microsoft.com",
+              "versions": [
+                {
+                  "value": "magaji@microsoft.com",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "lastmodifieddate": {
+              "value": "1758737628870",
+              "versions": [
+                {
+                  "value": "1758737628870",
+                  "source-type": "EMAIL",
+                  "source-id": null,
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758737628870,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                },
+                {
+                  "value": "1758710676039",
+                  "source-type": "API",
+                  "source-id": null,
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                },
+                {
+                  "value": "1758710674923",
+                  "source-type": "API",
+                  "source-id": null,
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710674923,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                },
+                {
+                  "value": "1758710669045",
+                  "source-type": "CALCULATED",
+                  "source-id": null,
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710669045,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                },
+                {
+                  "value": "1758710667319",
+                  "source-type": "INTERNAL_PROCESSING",
+                  "source-id": "RecordSourceDetailsWriterWorker",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710667319,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                },
+                {
+                  "value": "1758710666807",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_analytics_first_timestamp": {
+              "value": "1758710640000",
+              "versions": [
+                {
+                  "value": "1758710640000",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_full_name_or_email": {
+              "value": "Ayo Magaji",
+              "versions": [
+                {
+                  "value": "Ayo Magaji",
+                  "source-type": "CALCULATED",
+                  "source-id": "CalculatedPropertyComputer",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_social_google_plus_clicks": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_calculated_mobile_number": {
+              "value": "+2349037893456",
+              "versions": [
+                {
+                  "value": "+2349037893456",
+                  "source-type": "CALCULATED",
+                  "source-id": null,
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_social_facebook_clicks": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_object_source": {
+              "value": "INTEGRATION",
+              "versions": [
+                {
+                  "value": "INTEGRATION",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_social_twitter_clicks": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_analytics_source_data_2": {
+              "value": "223580",
+              "versions": [
+                {
+                  "value": "223580",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "hs_analytics_source_data_1": {
+              "value": "INTEGRATION",
+              "versions": [
+                {
+                  "value": "INTEGRATION",
+                  "source-type": "ANALYTICS",
+                  "source-id": "WebAnalyticsPropertyCalculation",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710676039,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "lifecyclestage": {
+              "value": "lead",
+              "versions": [
+                {
+                  "value": "lead",
+                  "source-type": "INTEGRATION",
+                  "source-id": "223580",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            },
+            "num_notes": {
+              "value": "0",
+              "versions": [
+                {
+                  "value": "0",
+                  "source-type": "CALCULATED",
+                  "source-id": "InitialRollupProperties",
+                  "source-label": null,
+                  "updated-by-user-id": null,
+                  "timestamp": 1758710666807,
+                  "selected": false,
+                  "data-sensitivity": null,
+                  "is-encrypted": null
+                }
+              ]
+            }
+          },
+          "form-submissions": [],
+          "list-memberships": [],
+          "identity-profiles": [
+            {
+              "vid": 453754570998,
+              "saved-at-timestamp": 1758710667056,
+              "deleted-changed-timestamp": 0,
+              "identities": [
+                {
+                  "type": "EMAIL",
+                  "value": "magaji@microsoft.com",
+                  "timestamp": 1758710666807,
+                  "is-primary": true
+                },
+                {
+                  "type": "LEAD_GUID",
+                  "value": "62df257c-f8ca-4adb-8052-daae6998faea",
+                  "timestamp": 1758710667053
+                }
+              ]
+            }
+          ],
+          "merge-audits": [],
+          "associated-company": {
+            "company-id": 243522992334,
+            "portal-id": 146953071,
+            "properties": {
+              "num_associated_contacts": {
+                "value": "1"
+              },
+              "hs_pipeline": {
+                "value": "companies-lifecycle-pipeline"
+              },
+              "createdate": {
+                "value": "1758710667538"
+              },
+              "hs_analytics_latest_source_data_2": {
+                "value": "223580"
+              },
+              "hs_analytics_latest_source_data_1": {
+                "value": "INTEGRATION"
+              },
+              "hs_num_blockers": {
+                "value": "0"
+              },
+              "hs_object_source_detail_1": {
+                "value": "\"Create and associate companies with contacts\" setting"
+              },
+              "hs_analytics_num_visits": {
+                "value": "0"
+              },
+              "hs_object_source_label": {
+                "value": "CRM_SETTING"
+              },
+              "hs_analytics_latest_source_timestamp": {
+                "value": "1758710640000"
+              },
+              "hs_analytics_source": {
+                "value": "OFFLINE"
+              },
+              "hs_object_source_id": {
+                "value": "FetchAssociatedCompanyIdStep"
+              },
+              "hs_task_label": {
+                "value": "Microsoft"
+              },
+              "hs_annual_revenue_currency_code": {
+                "value": "USD"
+              },
+              "hs_analytics_num_page_views": {
+                "value": "0"
+              },
+              "hs_num_open_deals": {
+                "value": "0"
+              },
+              "website": {
+                "value": "microsoft.com"
+              },
+              "hs_logo_url": {
+                "value": "https://na1.hubspot-logos.com/0687b96b-7a53-4a58-bc34-fe8bbf525dc0"
+              },
+              "hs_analytics_first_timestamp": {
+                "value": "1758710640000"
+              },
+              "hs_is_enriched": {
+                "value": "true"
+              },
+              "first_contact_createdate": {
+                "value": "1758710666807"
+              },
+              "hs_target_account_probability": {
+                "value": "0.38625118136405945"
+              },
+              "hs_lastmodifieddate": {
+                "value": "1758710732764"
+              },
+              "hs_num_decision_makers": {
+                "value": "0"
+              },
+              "num_conversion_events": {
+                "value": "0"
+              },
+              "domain": {
+                "value": "microsoft.com"
+              },
+              "hs_num_child_companies": {
+                "value": "0"
+              },
+              "hs_num_contacts_with_buying_roles": {
+                "value": "0"
+              },
+              "hs_object_id": {
+                "value": "243522992334"
+              },
+              "name": {
+                "value": "Microsoft"
+              },
+              "hs_object_source": {
+                "value": "COMPANIES"
+              },
+              "hs_analytics_source_data_2": {
+                "value": "223580"
+              },
+              "hs_analytics_latest_source": {
+                "value": "OFFLINE"
+              },
+              "hs_analytics_source_data_1": {
+                "value": "INTEGRATION"
+              },
+              "lifecyclestage": {
+                "value": "lead"
+              },
+              "num_notes": {
+                "value": "0"
+              }
+            }
+          },
+          "isNew": false
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Typeform Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hunter": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Logs-Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Incoming lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Hunter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Thank you email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "High Priority",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "New Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update a contact": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error-Hubspot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send to Senior Sales Mgr": {
+      "main": [
+        []
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Demo Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NoDemo Welcome email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NoDemo Welcome email": {
+      "main": [
+        []
+      ]
+    },
+    "Thank you email": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Incoming lead": {
+      "main": [
+        [
+          {
+            "node": "Existing lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Existing lead": {
+      "main": [
+        [
+          {
+            "node": "Compare objects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare objects": {
+      "main": [
+        [
+          {
+            "node": "Logs-UpdatedDuplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Leads-Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Leads-No enrichment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Review1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "New Lead1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logs-UpdatedDuplicate": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leads Update record": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Leads-No enrichment": {
+      "main": [
+        [
+          {
+            "node": "Lead Review1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error-Airtable",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Logs-Create a record": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leads-Create a record": {
+      "main": [
+        [
+          {
+            "node": "New Lead1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error-Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error-Airtable": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record1": {
+      "main": [
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message3": {
+      "main": [
+        [
+          {
+            "node": "Send a message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error-Hubspot": {
+      "main": [
+        [
+          {
+            "node": "Create a record1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record": {
+      "main": [
+        [
+          {
+            "node": "Create or update a contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "High Priority": {
+      "main": [
+        [
+          {
+            "node": "Send to Senior Sales Mgr",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Leads": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Leads Update record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8146d580-c235-4cdf-bacc-0e760d185cd4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f5721c94127a8e93281a653a757d7c8ef3088aad0f5c1e00fff296845f9ec615"
+  },
+  "id": "pIwGdsPpXYjShdf0",
+  "tags": []
+}
