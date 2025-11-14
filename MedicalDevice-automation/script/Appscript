@@ -1,0 +1,100 @@
+function monthlyMaintenanceSummary() {
+  const sheet = 
+SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Devices");
+  const rows = sheet.getDataRange().getValues();
+  
+  // Get headers
+  const headers = rows.shift().map(h => h.toString().trim()); // remove 
+extra spaces
+  
+  // Find indexes
+  const idxDevice = headers.indexOf("Device ID");
+  const idxName = headers.indexOf("Device Name");
+  const idxStatus = headers.indexOf("Status");
+  const idxLastServiced = headers.indexOf("LastServicedDate");
+  const idxNextDue = headers.indexOf("NextDueDate");
+  
+  if (idxDevice === -1 || idxName === -1) {
+    Logger.log("Check column names! DeviceID or DeviceName not found.");
+    return;
+  }
+  
+  const today = new Date();
+  const month = today.getMonth();
+  const year = today.getFullYear();
+  
+  const overdue = [];
+  const dueSoon = [];
+  const active = [];
+  const servicedThisMonth = [];
+  
+  rows.forEach(row => {
+    const status = row[idxStatus].toString().trim();
+    const lastServiced = new Date(row[idxLastServiced]);
+    
+    if(status === "Overdue") overdue.push(row);
+    else if(status === "Due Soon") dueSoon.push(row);
+    else if(status === "Active") active.push(row);
+    
+    if(lastServiced.getMonth() === month && lastServiced.getFullYear() === 
+year) {
+      servicedThisMonth.push(row);
+    }
+  });
+  
+  // Build HTML table for overdue devices
+  function buildTable(arr) {
+    if(arr.length === 0) return "<p>No overdue devices.</p>";
+    let html = "<table border='1' cellpadding='5' cellspacing='0'><tr>";
+    ["Device ID","Device Name","Last Serviced","Next 
+Due","Status"].forEach(h => {
+      html += `<th>${h}</th>`;
+    });
+    html += "</tr>";
+    
+    arr.forEach(row => {
+      html += `<tr>
+        <td>${row[idxDevice]}</td>
+        <td>${row[idxName]}</td>
+        <td>${new Date(row[idxLastServiced]).toDateString()}</td>
+        <td>${new Date(row[idxNextDue]).toDateString()}</td>
+        <td>${row[idxStatus]}</td>
+      </tr>`;
+    });
+    
+    html += "</table>";
+    return html;
+  }
+  
+  // Build summary HTML
+  const summary = `
+    <p>
+    Hello,<br>
+    Here is the monthly maintenance summary for your clinical devices. 
+<br>
+    It includes a quick overview of device statuses and a detailed table 
+of any overdue devices. <br>
+    Please review and take action where necessary.<br><br>
+    ✅ Total Devices: ${rows.length}<br>
+    ⚠️ Overdue: ${overdue.length}<br>
+    🟡 Due Soon: ${dueSoon.length}<br>
+    ✅ Active: ${active.length}<br>
+    ✅ Devices Serviced This Month: ${servicedThisMonth.length}
+    </p>
+  `;
+  
+  const emailBody = `
+    ${summary}
+    <h3>Overdue Devices</h3>
+    ${buildTable(overdue)}
+  `;
+  
+  const subject = `Monthly Maintenance Summary - 
+${today.toLocaleString('default', { month: 'long' })} ${year}`;
+  
+  MailApp.sendEmail({
+    to: "temitopefunmi@yahoo.com",
+    subject: subject,
+    htmlBody: emailBody
+  });
+

@@ -1,0 +1,4 @@
+Name,Department,MachineID,Service_Performed,Serviced_On,Next_Service,Comments
+MRI Unit B,Radiology,SIEM-MRI-302,Full Checkup,2025-10-28,2026-01-28,Replaced coil – OK
+X-Ray Floor 2,Imaging,SIEM-XR-190,Inspection,2025-10-30,2026-01-30,All systems nominal
+Ventilator ICU 7,Critical Care,SIEM-VEN-52,Calibration,2025-11-01,2026-02-01,Pressure valve adjusted

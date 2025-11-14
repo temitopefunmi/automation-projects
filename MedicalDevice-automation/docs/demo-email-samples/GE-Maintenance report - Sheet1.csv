@@ -1,0 +1,4 @@
+Device_ID,Device_Name,Last_Service_Date,Next_Due,Status,Technician,Notes
+GE-CT-1001,CT Scanner 1,2025-10-20,2025-12-20,Operational,David Lee,All tests passed
+GE-US-203,Ultrasound A3,2025-10-25,2025-11-25,Due Soon,Mary Johnson,Calibration pending
+GE-MRI-8,MRI 8000,2025-09-10,2025-12-10,Operational,John Smith,None
