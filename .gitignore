@@ -1,5 +1,12 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
 output/
-*.pptx
-*.xlsx
 __pycache__/
 ```
