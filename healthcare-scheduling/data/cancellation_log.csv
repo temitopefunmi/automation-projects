@@ -1,0 +1,5 @@
+appointment_id,original_patient,appt_datetime,decision,timestamp,actor
+10,Isla Brown,2025-11-22 14:30:00,no,2025-11-21 21:44:01.546628,
+10,George Hall,2025-11-22 14:30:00,offered,2025-11-21 21:44:01.565429,
+10,,,no,2025-11-22T10:37:28.967058,George Hall
+10,,,offered,2025-11-22T10:37:28.967058,Clara White

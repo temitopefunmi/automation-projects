@@ -1,0 +1,11 @@
+appointment_id,patient_name,provider,appt_datetime,duration_minutes,type,status,notes
+1,Sara Green,Dr. Smith,2025-11-22 9:00,30,Checkup,scheduled,
+2,John King,Dr. Smith,2025-11-22 9:30,30,Cleaning,cancelled,Patient sick
+3,Alice Brown,Dr. Smith,2025-11-22 10:00,60,Root Canal,scheduled,
+4,Michael Scott,Dr. Lee,2025-11-22 10:30,30,Cavity Filling,cancelled,Schedule conflict
+5,Emma Watson,Dr. Lee,2025-11-22 11:00,30,Checkup,scheduled,
+6,David Johnson,Dr. Lee,2025-11-22 11:30,45,Extraction,cancelled,Patient unavailable
+7,Liam Turner,Dr. Smith,2025-11-22 13:00,30,Checkup,scheduled,
+8,Olivia King,Dr. Lee,2025-11-22 13:30,30,Cleaning,scheduled,
+9,Noah Smith,Dr. Smith,2025-11-22 14:00,60,Root Canal,scheduled,
+10,Isla Brown,Dr. Lee,2025-11-22 14:30,30,Checkup,scheduled,

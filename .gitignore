@@ -1,0 +1,5 @@
+output/
+*.pptx
+*.xlsx
+__pycache__/
+```

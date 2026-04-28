@@ -1,0 +1,5 @@
+waitlist_id,patient_name,provider_requested,preferred_times,urgency,contact_method,contact_value,status
+1,Amy Lopez,Dr. Smith,morning,4,sms,5551239999,waiting
+2,Bob Martin,Dr. Smith,any,5,email,bob.martin@example.com,waiting
+3,Clara White,Dr. Lee,10:00-12:00,3,sms,5559871234,waiting
+4,George Hall,Dr. Lee,any,4,email,george.hall@example.com,waiting
